@@ -54,6 +54,7 @@ public with sharing class OrderAPI {
                 }
 
             } catch (Exception e) {
+                ErrorLogger.logError('OrderAPI', 'getCustomerOrders', e, JSON.serialize(request));
                 response.success = false;
                 response.message = 'Exception: ' + e.getMessage();
                 System.debug('ORDER API ERROR -> ' + e.getMessage());

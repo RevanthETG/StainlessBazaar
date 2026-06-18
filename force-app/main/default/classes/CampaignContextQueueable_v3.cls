@@ -25,6 +25,7 @@ public with sharing class CampaignContextQueueable_v3 implements Queueable, Data
                     System.debug('No campaign data for phone: ' + phoneNumber);
                 }
             } catch (Exception e) {
+                ErrorLogger.logError('CampaignContextQueueable_v3', 'execute', e, JSON.serialize(phoneNumber));
                 System.debug(LoggingLevel.ERROR, 'Queueable Error: ' + e.getMessage());
             }
         }

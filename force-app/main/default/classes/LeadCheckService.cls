@@ -111,6 +111,7 @@ public with sharing class LeadCheckService {
                 }
 
             } catch (Exception e) {
+                ErrorLogger.logError('LeadCheckService', 'checkStockAndPrice', e, JSON.serialize(request));
                 response.summary = 'Exception: ' + e.getMessage();
                 System.debug('ERROR -> ' + e.getMessage());
             }

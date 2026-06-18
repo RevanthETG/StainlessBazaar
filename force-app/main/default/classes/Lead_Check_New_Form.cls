@@ -133,6 +133,7 @@ public with sharing class Lead_Check_New_Form{
             }
             catch(Exception e){
 
+                ErrorLogger.logError('Lead_Check_New_Form', 'checkStockAndPrice', e, JSON.serialize(request));
                 response.summary = 'Exception: ' + e.getMessage();
                 System.debug('ERROR -> ' + e.getMessage());
 

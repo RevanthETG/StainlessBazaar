@@ -65,6 +65,7 @@ public with sharing class Agent_Campaign_Context {
                 }
 
             } catch (Exception e) {
+                ErrorLogger.logError('Agent_Campaign_Context', 'getCampaignByPhone', e, JSON.serialize(reqInput));
                 resOutput.result = 'ERROR: ' + e.getMessage();
             }
 

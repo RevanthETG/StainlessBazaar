@@ -80,6 +80,7 @@ public with sharing class Lead_Check_New_User {
                 // -------- HTTP CALLOUT --------
                 Http http = new Http();
                 HttpRequest req = new HttpRequest();
+                //code here
 
                 req.setEndpoint('callout:StainlessBazaar/sales-force/whatsapp_lead_check_stock_fetch_price');
                 req.setMethod('POST');
@@ -129,8 +130,14 @@ public with sharing class Lead_Check_New_User {
                 }
 
             }
-            catch(Exception e){
+            catch(CalloutException ce){
+                ErrorLogger.logError('Lead_Check_New_User', 'checkStockAndPrice', ce, JSON.serialize(request));
+                response.summary = 'Callout Exception: ' + ce.getMessage();
+                System.debug('ERROR -> ' + ce.getMessage());
 
+            }
+            catch(Exception e){
+                ErrorLogger.logError('Lead_Check_New_User', 'checkStockAndPrice', e, JSON.serialize(request));
                 response.summary = 'Exception: ' + e.getMessage();
                 System.debug('ERROR -> ' + e.getMessage());
 

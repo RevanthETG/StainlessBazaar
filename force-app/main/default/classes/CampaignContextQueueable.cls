@@ -22,6 +22,7 @@ public with sharing class CampaignContextQueueable implements Queueable, Databas
                 }
 
             } catch (Exception e) {
+                ErrorLogger.logError('CampaignContextQueueable', 'execute', e, JSON.serialize(phoneNumber));
                 System.debug(LoggingLevel.ERROR, 'Queueable Error: ' + e.getMessage());
             }
         }

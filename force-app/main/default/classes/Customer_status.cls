@@ -32,10 +32,7 @@ public class Customer_status {
             req.setEndpoint('callout:StainlessBazaar/sales-force/check-customer-status-and-update-lead');
             req.setMethod('POST');
             req.setHeader('Content-Type','application/json');
-            // FIX 1: Removed premature req.setBody(jsonBody) and duplicate setTimeout(20000).
-            //         Timeout is set once below after building the body.
-            
-            // Build the request body dynamically based on provided inputs
+           
             Map<String, Object> requestBody = new Map<String, Object>();
             
             // Add member identifier based on what's provided
@@ -109,8 +106,10 @@ public class Customer_status {
             }
             
         } catch (CalloutException e) {
+            ErrorLogger.logError('Customer_status', 'makeAPICallout', e, JSON.serialize(request));
             response.summary = 'Callout failed: ' + e.getMessage() + '. Please try again or contact support.';
         } catch (Exception e) {
+            ErrorLogger.logError('Customer_status', 'makeAPICallout', e, JSON.serialize(request));
             response.summary = 'An error occurred while checking customer status: ' + e.getMessage() + 
                              '. Please try again or contact support.';
         }
