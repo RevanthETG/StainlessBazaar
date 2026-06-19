@@ -14,16 +14,13 @@ public with sharing class Lead_Check_New_User {
                 RequestWrapper body = new RequestWrapper();
 
                 // -------- USER IDENTIFIER --------
-                if(String.isNotBlank(request.userPhone)){
+                if (String.isNotBlank(request.userPhone)) {
                     body.user_phone = request.userPhone;
-                }
-                else if(String.isNotBlank(request.userName)){
+                } else if (String.isNotBlank(request.userName)) {
                     body.user_name = request.userName;
-                }
-                else if(String.isNotBlank(request.userEmail)){
+                } else if (String.isNotBlank(request.userEmail)) {
                     body.user_email = request.userEmail;
-                }
-                else{
+                } else {
                     response.summary = 'User identifier missing.';
                     responses.add(response);
                     continue;
@@ -54,7 +51,7 @@ public with sharing class Lead_Check_New_User {
                 spec.quantity = request.quantity;
                 spec.unit = request.unit;
 
-                body.productSpecification = new List<ProductSpecWrapper>{spec};
+                body.productSpecification = new List<ProductSpecWrapper>{ spec };
 
                 // -------- MEMBER CREATE --------
                 body.memberCreate = new NewMemberWrapper();
@@ -83,7 +80,7 @@ public with sharing class Lead_Check_New_User {
 
                 req.setEndpoint('callout:StainlessBazaar/sales-force/whatsapp_lead_check_stock_fetch_price');
                 req.setMethod('POST');
-                req.setHeader('Content-Type','application/json');
+                req.setHeader('Content-Type', 'application/json');
                 req.setTimeout(20000);
                 req.setBody(jsonBody);
 
@@ -96,44 +93,55 @@ public with sharing class Lead_Check_New_User {
                 System.debug('RESPONSE BODY -> ' + responseBody);
 
                 // -------- HANDLE RESPONSE --------
-                if(statusCode >= 200 && statusCode < 300){
+                if (statusCode >= 200 && statusCode < 300) {
 
                     ResponseWrapper apiResponse =
                         (ResponseWrapper) JSON.deserialize(responseBody, ResponseWrapper.class);
 
-                    if(apiResponse != null && apiResponse.data != null){
+                    if (apiResponse != null && apiResponse.data != null) {
 
                         response.stockAvailable = apiResponse.data.stock_availability;
                         response.minOfferPrice = apiResponse.data.min_offer_price;
                         response.priceToUser = apiResponse.data.price_to_user;
 
-                        if(apiResponse.data.lead != null){
+                        if (apiResponse.data.lead != null) {
                             response.leadId = apiResponse.data.lead.id;
                             response.leadType = apiResponse.data.lead.leadType;
                             response.leadStatus = String.valueOf(apiResponse.data.lead.leadStatus);
 
-                            if(apiResponse.data.lead.createdUpdatedDate != null){
+                            if (apiResponse.data.lead.createdUpdatedDate != null) {
                                 response.createdAt = apiResponse.data.lead.createdUpdatedDate.createdAt;
                             }
                         }
 
                         response.summary = 'Success';
-                    }
-                    else{
+                    } else {
                         response.summary = 'API returned empty response';
                     }
 
-                }
-                else{
+                } else {
                     response.summary = 'API Error: ' + statusCode + ' | ' + responseBody;
+
+                    // NOTE: a non-2xx response is NOT an Exception in Apex,
+                    // so it will never hit the catch blocks below.
+                    // Logging it explicitly here ensures it's captured too.
+                    ErrorLogger.logError(
+                        'Lead_Check_New_User',
+                        'checkStockAndPrice',
+                        new CalloutException('API Error: ' + statusCode + ' | ' + responseBody),
+                        JSON.serialize(request)
+                    );
                 }
 
-            }
-            catch(Exception e){
+            } catch (CalloutException ce) {
+                ErrorLogger.logError('Lead_Check_New_User', 'checkStockAndPrice', ce, JSON.serialize(request));
+                response.summary = 'Callout Exception: ' + ce.getMessage();
+                System.debug('ERROR -> ' + ce.getMessage());
 
+            } catch (Exception e) {
+                ErrorLogger.logError('Lead_Check_New_User', 'checkStockAndPrice', e, JSON.serialize(request));
                 response.summary = 'Exception: ' + e.getMessage();
                 System.debug('ERROR -> ' + e.getMessage());
-
             }
 
             responses.add(response);
@@ -144,7 +152,7 @@ public with sharing class Lead_Check_New_User {
 
     // -------- REQUEST CLASSES --------
 
-    public class RequestWrapper{
+    public class RequestWrapper {
         public String user_phone;
         public String user_name;
         public String user_email;
@@ -153,7 +161,7 @@ public with sharing class Lead_Check_New_User {
         public NewMemberWrapper memberCreate;
     }
 
-    public class NewMemberWrapper{
+    public class NewMemberWrapper {
         public String ownerContactNumber;
         public String companyName;
         public String ownerName;
@@ -169,7 +177,7 @@ public with sharing class Lead_Check_New_User {
         public String gstNo;
     }
 
-    public class LeadWrapper{
+    public class LeadWrapper {
         public String product_category;
         public String product_description;
         public Integer delivery_in_days;
@@ -186,7 +194,7 @@ public with sharing class Lead_Check_New_User {
         public String buyer_type_id;
     }
 
-    public class ProductSpecWrapper{
+    public class ProductSpecWrapper {
         public String thickness;
         public String size;
         public String finish;
@@ -196,31 +204,31 @@ public with sharing class Lead_Check_New_User {
 
     // -------- RESPONSE CLASSES --------
 
-    public class ResponseWrapper{
+    public class ResponseWrapper {
         public DataWrapper data;
     }
 
-    public class DataWrapper{
+    public class DataWrapper {
         public String stock_availability;
         public Decimal min_offer_price;
         public Decimal price_to_user;
         public LeadData lead;
     }
 
-    public class LeadData{
+    public class LeadData {
         public String id;
         public String leadType;
         public Integer leadStatus;
         public DateWrapper createdUpdatedDate;
     }
 
-    public class DateWrapper{
+    public class DateWrapper {
         public String createdAt;
     }
 
     // -------- FLOW INPUT --------
 
-    public class LeadCheckRequest{
+    public class LeadCheckRequest {
 
         @InvocableVariable public String userPhone;
         @InvocableVariable public String userName;
@@ -250,8 +258,8 @@ public with sharing class Lead_Check_New_User {
         @InvocableVariable public String ownerName;
         @InvocableVariable public String address;
         @InvocableVariable public String pincode;
-        @InvocableVariable public String city;           // memberCreate.city (distinct from deliveryCity)
-        @InvocableVariable public String memberState;    // NEW — memberCreate.memberState (distinct from lead state)
+        @InvocableVariable public String city;
+        @InvocableVariable public String memberState;
         @InvocableVariable public String businessCategory;
         @InvocableVariable public String memberType;
         @InvocableVariable public String gstNo;
@@ -259,7 +267,7 @@ public with sharing class Lead_Check_New_User {
 
     // -------- FLOW OUTPUT --------
 
-    public class LeadCheckResponse{
+    public class LeadCheckResponse {
 
         @InvocableVariable public String stockAvailable;
         @InvocableVariable public Decimal minOfferPrice;

@@ -121,6 +121,7 @@ public with sharing class Agent_Campaign_Context_v2 {
                     resOutput.result = 'API Error: ' + res.getBody();
                 }
             } catch (Exception e) {
+                ErrorLogger.logError('Agent_Campaign_Context_v2', 'getCampaignByPhone', e, JSON.serialize(reqInput));
                 resOutput.result = 'ERROR: ' + e.getMessage();
             }
 
