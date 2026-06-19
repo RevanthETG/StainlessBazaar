@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>ErrorLogger</members>
+        <members>Agent_Campaign_Context</members>
+        <members>Agent_Campaign_Context_v2</members>
+        <members>CampaignContextQueueable</members>
+        <members>CampaignContextQueueable_v3</members>
+        <members>Customer_status</members>
+        <members>LeadCheckService</members>
+        <members>LeadCheckService_Form</members>
+        <members>Lead_Check_New_Form</members>
+        <members>Lead_Check_New_User</members>
+        <members>OrderAPI</members>
+        <name>ApexClass</name>
+    </types>
+    <version>65.0</version>
+</Package>

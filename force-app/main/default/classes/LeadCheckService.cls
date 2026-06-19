@@ -108,6 +108,17 @@ public with sharing class LeadCheckService {
 
                 } else {
                     response.summary = 'API Error: ' + res.getStatus() + ' - ' + res.getBody();
+
+                    // NOTE: a non-2xx HTTP response is NOT an Apex Exception,
+                    // so it would never reach the catch block below.
+                    // Logging it explicitly here ensures API-level failures
+                    // are captured in Stainless_Error_Log__c too.
+                    ErrorLogger.logError(
+                        'LeadCheckService',
+                        'checkStockAndPrice',
+                        new CalloutException('API Error: ' + res.getStatus() + ' - ' + res.getBody()),
+                        JSON.serialize(request)
+                    );
                 }
 
             } catch (Exception e) {
@@ -122,7 +133,7 @@ public with sharing class LeadCheckService {
         return responses;
     }
 
-   
+
 
     public class RequestWrapper {
         public String user_phone;
